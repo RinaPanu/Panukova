@@ -1,6 +1,6 @@
 import os
 
-outputParameter = input("Что вы хотите вывести?")
+outputParameter = input("Что вы хотители бы вывести?")
 if (outputParameter == "Вакансии"):
     os.system('.\\1.6.2.py')
 elif (outputParameter == "Статистика"):
