@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report</title>
+    <style>
+        body{
+        text-align:center;
+        font-family:'Verdana';
+        }
+
+        table {
+        border-collapse: collapse;
+        border: 1px solid black;
+        width: 100%
+        }
+
+        th, td{
+        border: 1px solid black;
+        padding: 5px;
+        }
+
+        .table-city-salary, .table-city-count {
+        float: left;
+        margin: 1.25%;
+        width: 45%;
+        }
+
+    </style>
+</head>
+<body>
+<h1>Аналитика по зарплатам и городам для профессии {{profession}}</h1>
+<img src="C:\Users\Пользователь\PycharmProjects\pythonProject\2.1\graph.png">
+<h2>Статистика по годам</h2>
+<table>
+    <tr>
+        <th>{{years_headers[0]}}</th>
+        <th>{{years_headers[1]}}</th>
+        <th>{{years_headers[2]}}</th>
+        <th>{{years_headers[3]}}</th>
+        <th>{{years_headers[4]}}</th>
+    </tr>
+    {% for key, value in years_salaries.items() %}
+    <tr>
+        <td>{{key}}</td>
+        <td>{{value}}</td>
+        <td>{{job_years_salaries[key]}}</td>
+        <td>{{years_vacancies_counts[key]}}</td>
+        <td>{{job_years_vacancies[key]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h2>Статистика по городам</h2>
+<table class="table-city-salary">
+    <tr>
+        <th>{{cities_headers[0]}}</th>
+        <th>{{cities_headers[1]}}</th>
+    </tr>
+    {% for key, value in cities_salaries.items() %}
+    <tr>
+        <td>{{key}}</td>
+        <td>{{value}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<table class="table-city-count">
+    <tr>
+        <th>{{cities_headers[2]}}</th>
+        <th>{{cities_headers[3]}}</th>
+    </tr>
+    {% for key, value in cities_vacancies_ratios.items() %}
+    <tr>
+        <td>{{key}}</td>
+        <td>{{value}}</td>
+    </tr>
+    {% endfor %}
+</table>
