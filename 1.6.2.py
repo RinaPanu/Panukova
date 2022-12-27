@@ -7,6 +7,22 @@ import os
 
 
 class InputConnect:
+    """
+    Класс, отвечающий за обработку параметров вводимых пользователем: название файла, название профессии,
+    а также вывож данных для таблицы на экран
+
+    Attributes:
+        __formatFuncs (dict): Словарь с функциями, форматирующими данные вакансии
+        __requests (dict): Словарь запросов данных пользователю
+        fieldNames (dict): Словарь для перевода полей с английского на русский
+        correctFields (list): Названия полей, которые должны быть в таблице
+        fileName (str): Название файла
+        filterParameter (list[str]): Параметр фильтрации
+        sortParameter (str): Параметр сортировки
+        isReverseSort (bool): Порядок сортировки
+        outputRange (list[str]): Диапазон вывода
+        outputColumns(list[str]): Колонки вывода
+    """
     __formatFuncs = {"name": lambda vacancy: vacancy.name,
                      "description": lambda vacancy: vacancy.description,
                      "key_skills": lambda vacancy: vacancy.keySkills,
@@ -45,9 +61,16 @@ class InputConnect:
                      "area_name", "published_at"]
 
     def __init__(self):
+        """ Инициализирует объект InputConnect """
         self.fileName, self.filterParameter, self.sortParameter, self.isReverseSort, self.outputRange, self.outputColumns = self.__GetData()
 
     def Initialize(self, vacancies):
+        """
+        Инициализирует все необходимые компоненты для работы объекта InputConnect
+
+        Args:
+            vacancies (list[Vacancy]): Список всех вакансий
+        """
         self.table = PrettyTable(hrules=ALL, align='l')
         self.table.field_names = [self.fieldNames[name] for name in self.correctFields]
         self.table.max_width = 20
@@ -57,6 +80,13 @@ class InputConnect:
             self.outputColumns) else self.table.field_names
 
     def PrintDataSet(self, dataSet):
+        """
+        Выводит на экран пользователю таблицу с данными,
+        если нет подходящих под параметры поиска вакансий, выводит "Ничего не найдено"
+
+        Args:
+            dataSet (DataSet): Данные файла
+        """
         outputVacancies = [self.__Formatter(vacancy)
                            for vacancy in dataSet.vacanciesObjects]
         self.table.add_rows(outputVacancies)
@@ -69,17 +99,43 @@ class InputConnect:
             sys.exit()
 
     def __Formatter(self, vacancy):
+        """
+        Форматирует данные для таблицы, а именно задает вакансии (Vacancy) максимальное количество символов в ячейке
+        и убирает из вывода поля, которые не нужно выводить
+
+        Args:
+            vacancy (Vacancy): Вакансия
+
+        Returns:
+            vacancy (Vacancy): Отформатированная вакансия
+        """
         newVacancy = {nameFunc: self.__formatFuncs[nameFunc](vacancy) for nameFunc in self.correctFields}
         newVacancy = self.__SetMaxChars(newVacancy).values()
         return newVacancy
 
     def __SetRange(self, vacancies, rangeRows):
+        """
+        Возвращает значение диапазона вывода
+
+        Args:
+            vacancies (list[Vacancy]): Список вакансий
+            rangeRows (list[str]): Диапазон вывода
+
+        Returns:
+            (int, int): Диапазон вывода
+        """
         countRows = len(vacancies)
         start = int(rangeRows[0]) - 1 if any(rangeRows) else 0
         end = int(rangeRows[1]) - 1 if len(rangeRows) == 2 else countRows
         return start, end
 
     def __GetData(self):
+        """
+        Запрашивает данные у пользователя
+
+        Returns:
+            (dict): Данные ввода
+        """
         data = {}
         for request in InputConnect.__requests.keys():
             data[request] = input(request)
@@ -87,6 +143,15 @@ class InputConnect:
         return data
 
     def __SetMaxChars(self, vacancy):
+        """
+        Задает полям вакансии максимальное количество символов (120)
+
+        Args:
+            vacancy (dict): Вакансия
+
+        Returns:
+            vacancy (Vacancy): Вакансия
+        """
         newVacancy = vacancy.copy()
         for key in vacancy.keys():
             if len(vacancy[key]) > 100:
@@ -95,6 +160,17 @@ class InputConnect:
 
     @staticmethod
     def _SetFilterParameter(filterParameter):
+        """
+        Возвращает значение параметра фильтрации,
+        если в строке ввода отсутсвует ":" - выводит "Формат ввода некорректен" и завершает работу программы,
+        если параметра фильтрации не существует - выводит "Параметр поиска некорректен" и завершает работу программы
+
+        Args:
+            filterParameter(str): Параметр фильтрации
+
+        Returns:
+            list(str): Параметр фильтрации
+        """
         if filterParameter == "":
             return filterParameter
         elif ": " not in filterParameter:
@@ -109,6 +185,16 @@ class InputConnect:
 
     @staticmethod
     def _SetSortParameter(sortParameter):
+        """
+        Возвращает значение параметра сортировки,
+        если параметра сортировки не существует - выводит "Параметр сортировки некорректен" и прерывает работу программы
+
+        Args:
+            sortParameter(str): Параметр сортировки
+
+        Returns:
+            (str): Параметр сортировки
+        """
         if sortParameter not in DataSet._sortFuncs and sortParameter != "":
             print("Параметр сортировки некорректен")
             sys.exit()
@@ -116,6 +202,16 @@ class InputConnect:
 
     @staticmethod
     def _SetReverseSortStatus(isReverseSort):
+        """
+        Возвращает значение порядка сортировки,
+        если порядка сортировки не существует - выводит "Порядок сортировки задан некорректно" и прерывает работу программы
+
+        Args:
+            isReverseSort(str): Порядок сортировки
+
+        Returns:
+            (bool): Порядок сортировки
+        """
         if isReverseSort == "":
             return False
         elif isReverseSort in ["Да", "Нет"]:
@@ -127,6 +223,19 @@ class InputConnect:
 
 
 class DataSet:
+    """
+    Класс, отвечающий за чтение и подготовку данных из CSV-файла.
+
+    Attributes:
+        _sortFuncs (dict): Функции сортировки
+        _filterFuncs (dict): Функции фильтрации
+        _sortFuncs (dict): Функции сортировки
+        _experience (dict): Словарь для перевода поля опыта с английского на русский
+        _experienceSort (dict): Словарь для перевода поля опыта с английского на порядко сортировки
+        _boolFields (dict): Словарь для перевода булиевых полей с английского на русский
+        _reverseFieldNames (dict): Словарь для перевода полей с русского на английский
+        fileName (str): Название файла
+    """
     _sortFuncs = {"Название": lambda vacancy: vacancy.name,
                   "Описание": lambda vacancy: vacancy.description,
                   "Навыки": lambda vacancy: len(vacancy.keySkills.split("\n")),
@@ -171,12 +280,23 @@ class DataSet:
     _reverseFieldNames = {v: k for k, v in InputConnect.fieldNames.items()}
 
     def __init__(self, inputData):
+        """
+        Инициализирует объект DataSet
+
+        Args:
+            inputData (InputConnect): данные введенные пользователем
+        """
         self.fileName = inputData.fileName
         self.__UniversalParserCSV(inputData)
 
 
-
     def __UniversalParserCSV(self, inputData):
+        """
+        Парсит CSV файл и обрабатывает данные для вывода
+
+        Args:
+            inputData (InputConnect): данные введенные пользователем
+        """
         filterParameter = inputData.filterParameter
         sortParameter = inputData.sortParameter
         isReverseSort = inputData.isReverseSort
@@ -189,6 +309,15 @@ class DataSet:
         self.vacanciesObjects = self.__FilterVacancies(filterParameter, self.vacanciesObjects)
 
     def __CleanRow(self, row):
+        """
+        Очищает строку CSV-файла от лишних символов
+
+        Args:
+            row: Строка файла
+
+        Returns:
+            (str): Очищенная строка
+        """
         cleaner = re.compile('<.*?>')
         clearedRow = re.sub(cleaner, '', row)
         clearedRow = "; ".join(clearedRow.split('\n'))
@@ -197,6 +326,13 @@ class DataSet:
         return clearedRow
 
     def __CsvReader(self, fileName):
+        """
+        Считывает CSV файл.
+        Если файл пустой - выводит строку "Пустой файл" и прерывает работу программы,
+
+        Args:
+            fileName (str): Название файла
+        """
         file = open(fileName, encoding='utf-8-sig', newline='')
         if os.stat(fileName).st_size == 0:
             print("Пустой файл")
@@ -206,6 +342,17 @@ class DataSet:
         return fileReader, columnNames
 
     def __CsvFilter(self, fileReader, columnNames):
+        """
+        Обрабатывает полученные на вход данные, возвращает список всех вакансий,
+        если нет корректных данных - выводит "Нет данных" и прерывает работу программы
+
+        Args:
+            fileReader: Все строки из файла в виде словарей
+            columnNames: Список заголовков полей
+
+        Returns:
+            list[Vacancy]: Список всех вакансий
+        """
         vacancies = []
         columnsCount = len(columnNames)
 
@@ -223,6 +370,15 @@ class DataSet:
         return vacancies
 
     def __FilterVacancies(self, filterParameter, vacancies):
+        """
+        Фильтрует все вакансии по заданному параметру
+
+        Args:
+            filterParameter(list[str]): Параметр фильтрации
+            vacancies (list[Vacancy]): Список вакансий
+        Returns:
+            (list[Vacancy]): Список вакансий
+        """
         newVacancies = []
         for vacancy in vacancies:
             if not filterParameter:
@@ -234,7 +390,17 @@ class DataSet:
         return newVacancies
 
     def __SortVacancies(self, sortParameter, vacancies, isReverseSort):
+        """
+        Сортирует все вакансии по заданным параметрам
 
+        Args:
+            sortParameter(str): Параметр сортировки
+            vacancies (list[Vacancy]): Список вакансий
+            isReverseSort (bool): Порядок сортировки
+
+        Returns:
+            (list[Vacancy]): Список вакансий
+        """
         newVacancies = vacancies
         if sortParameter:
             newVacancies.sort(key=self._sortFuncs[sortParameter], reverse=isReverseSort)
@@ -242,13 +408,52 @@ class DataSet:
 
 
 class Vacancy:
+    """
+    Класс представления вакансии.
+
+    Attributes:
+        name (str): Название вакансии
+        keySkills (str): Основные навыки
+        experienceId (str): Опыт работы
+        premium (str): Премиум вакансия
+        employerName (str): Наниматель
+        salary (Salary): Представление запрлаты
+        areaName (str): Название города
+        publishedAt (str): Дата публикации
+    """
     def __init__(self, name, description, keySkills, experienceId, premium, employerName, salary, areaName,
                  publishedAt):
+        """
+        Инициализирует объект класса Vacancy
+
+        Args:
+            name (str): Название вакансии
+            keySkills (str): Основные навыки
+            experienceId (str): Опыт работы
+            premium (str): Премиум вакансия
+            employerName (str): Наниматель
+            salary (Salary): Представление запрлаты
+            areaName (str): Название города
+            publishedAt (str): Дата публикации
+        """
         self.name, self.description, self.keySkills, self.experienceId, self.premium, self.employerName, self.salary, self.areaName, self.publishedAt \
             = name, description, keySkills, experienceId, premium, employerName, salary, areaName, publishedAt
 
 
 class Salary:
+    """
+    Класс представления зарплаты.
+
+    Attributes:
+        salaryFrom (int): Зарплато от
+        salaryTo (int): Зарплата до
+        salaryCurrency (str): Название валюты
+        salaryGross (str): Параметр налогообложения
+        __formatFuncsSalary (dict): Словарь функция форматирования параметров зарплаты
+        _salaryCurrency (dict): Словарь перевода валюты с английского на русский
+        _salaryGross (dict): Словарь перевода параметра налогообложения с английского на русский
+        currencyToRub (dict): Курс обмена валют
+    """
     _salaryCurrency = {"AZN": "Манаты",
                        "BYR": "Белорусские рубли",
                        "EUR": "Евро",
@@ -283,25 +488,65 @@ class Salary:
                            }
 
     def __init__(self, salaryFrom, salaryTo, salaryCurrency, salaryGross):
+        """
+        Инициализирует объект класса Salary
+
+        Args:
+            salaryFrom (int): Зарплато от
+            salaryTo (int): Зарплата до
+            salaryCurrency (str): Название валюты
+            salaryGross (str): Параметр налогообложения
+        """
         self.salaryFrom, self.salaryTo, self.salaryCurrency, self.salaryGross = salaryFrom, salaryTo, salaryCurrency, salaryGross
 
     def Format(self):
+        """
+        Форматирует поля зарплаты соответсвенно заданным функциям
+
+        Returns:
+            (str): Формат зарплаты для таблицы
+        """
         salary = ""
         for name in self.__dict__.keys():
             salary += self.__formatFuncsSalary[name](self.__dict__[name])
         return salary
 
     def ChangeCurrency(self, salary):
+        """
+        Конвертирует сумму из любой валюты в рубли
+
+        Args:
+            salary(float): Сумма
+
+        Returns:
+            int: Сумма в рублях
+        """
         return salary * self.currencyToRub[self.salaryCurrency]
 
     def Sort(self):
-        ch = int(float(self.salaryFrom)) + int(float(self.salaryTo)) / 2
+        """
+        Задает правило сортировки зарплаты (от среднего значения)
+
+        Returns:
+            (int): Среднее значение зарплаты
+        """
         return self.ChangeCurrency((int(float(self.salaryFrom)) + int(float(self.salaryTo))) / 2)
 
     def SumFilter(self, expectedSum):
+        """
+        Задает правило фильтрации зарплаты от заданного значения (суммы)
+
+        Returns:
+            (bool): Значение фильтрации
+        """
         return int(float(self.salaryTo)) >= int(float(expectedSum)) >= int(float(self.salaryFrom))
 
     def CurrencyFilter(self, expectedCurrency):
+        """
+        Задает правило фильтрации зарплаты от заданного значения (валюты)
+        Returns:
+            (bool): Значение фильтрации
+        """
         return expectedCurrency == self._salaryCurrency[self.salaryCurrency]
 
 
