@@ -224,11 +224,22 @@ class DataSet:
         dinamicsSalaries = {}
         self.period = []
         for vacancy in self.vacanciesObjects:
-            year = datetime.strptime(vacancy.publishedAt, '%Y-%m-%dT%H:%M:%S%z').year
+            # year = self.__FormatDate(vacancy.publishedAt).year
+            year = int(self.__FormatDate(vacancy.publishedAt).split(".")[-1])
             self.period.append(year)
             if vacancyName is None or vacancyName in vacancy.name:
                 dinamicsSalaries.setdefault(year, []).append(vacancy)
         return dinamicsSalaries
+
+    def __FormatDate(self, date):
+        # V2
+        return f'{date[8:10]}.{date[5:7]}.{date[0:4]}'
+        # V3
+        # date = date.split("T")[0]
+        # date = date.split("-")
+        # return f'{date[-1]}.{date[1]}.{date[0]}'
+        # V1
+        # return datetime.strptime(vacancy.publishedAt, '%Y-%m-%dT%H:%M:%S%z')
 
     def __VacancyFilterByArea(self):
         """
@@ -656,9 +667,9 @@ class Report:
         pdfkit.from_string(pdfTemplate, "report.pdf", configuration=config, options=options)
 
 
-# inputData = InputConnect()
-# dataSet = DataSet(inputData.fileName, inputData.vacancyName)
-# inputData.PrintData(dataSet)
-#
-# reportData = Report(dataSet.vacancyNameParameter)
-# reportData.GeneratePDF(inputData.GetListData((dataSet)))
+inputData = InputConnect()
+dataSet = DataSet(inputData.fileName, inputData.vacancyName)
+inputData.PrintData(dataSet)
+
+reportData = Report(dataSet.vacancyNameParameter)
+reportData.GeneratePDF(inputData.GetListData((dataSet)))

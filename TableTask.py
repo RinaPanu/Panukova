@@ -630,7 +630,6 @@ class Salary:
         return expectedCurrency == self._salaryCurrency[self.salaryCurrency]
 
 
-# inputData = InputConnect()
-# dataSet = DataSet(inputData)
-# inputData.PrintDataSet(dataSet)
-doctest.testmod()
+inputData = InputConnect()
+dataSet = DataSet(inputData)
+inputData.PrintDataSet(dataSet)
