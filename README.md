@@ -15,3 +15,15 @@ V3
 
 CsvSplitterByYear result
 ![изображение](https://user-images.githubusercontent.com/103134410/206735555-d98357f0-fe01-4397-a9ac-b80cacf80207.png)
+
+Динамики без многопроцессорности
+
+![изображение](https://user-images.githubusercontent.com/103134410/206861457-88fa9016-3022-403c-bbf7-ad21b8ac2f41.png)
+
+Динамики с Multiprocessing
+
+![изображение](https://user-images.githubusercontent.com/103134410/206861567-ed5d616b-c6ec-41d1-a5c3-36fe060c6124.png)
+
+Динамики с concurrent.futures
+
+![изображение](https://user-images.githubusercontent.com/103134410/206861601-e5e6dd77-7633-4adf-938d-34d1a1034b81.png)
