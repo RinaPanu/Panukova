@@ -1,3 +1,6 @@
 /.idea
 /venv
 *.csv
+/__pycache__
+/Tests/__pycache__
+*.xlsx

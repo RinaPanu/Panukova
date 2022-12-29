@@ -4,7 +4,7 @@ from prettytable import *
 import csv
 import re
 import os
-
+import doctest
 
 class InputConnect:
     """
@@ -141,6 +141,28 @@ class InputConnect:
             data[request] = input(request)
         data = [InputConnect.__requests[item[0]](item[1]) for item in data.items()]
         return data
+
+    @staticmethod
+    def SetMaxCharsTest(vacancy):
+        """
+        Задает полям вакансии максимальное количество символов (120)
+
+        Args:
+            vacancy (dict): Вакансия
+
+        Returns:
+            vacancy (Vacancy): Вакансия
+        >>> InputConnect.SetMaxCharsTest({0: "asdas", 1: "213sdsd", 2: "", 3: "dljkrfghberifhgj bneiruhjgb niedujfhngk dfjngdkjfg ndjkfgndkjfg ndfjkgndkjfgndkjfngxkmcv dfdfgdfgb,xm skjfnsdfsdfs dgasdas dfgdfgdfgdf"})
+        {0: 'asdas', 1: '213sdsd', 2: '', 3: 'dljkrfghberifhgj bneiruhjgb niedujfhngk dfjngdkjfg ndjkfgndkjfg ndfjkgndkjfgndkjfngxkmcv dfdfgdfgb,x...'}
+        >>> InputConnect.SetMaxCharsTest({})
+        {}
+        """
+
+        newVacancy = vacancy.copy()
+        for key in vacancy.keys():
+            if len(vacancy[key]) > 100:
+                newVacancy[key] = vacancy[key][:100] + "..."
+        return newVacancy
 
     def __SetMaxChars(self, vacancy):
         """
@@ -308,15 +330,41 @@ class DataSet:
         self.vacanciesObjects = self.__SortVacancies(sortParameter, self.vacanciesObjects, isReverseSort)
         self.vacanciesObjects = self.__FilterVacancies(filterParameter, self.vacanciesObjects)
 
-    def __CleanRow(self, row):
+    @staticmethod
+    def CleanRowTest(row):
         """
-        Очищает строку CSV-файла от лишних символов
+        Очищает поле вакансии в CSV-файле от лишних символов
 
         Args:
-            row: Строка файла
+            row (str): Поле вакансии
 
         Returns:
-            (str): Очищенная строка
+            (str): Очищенное поле вакансии
+        >>> DataSet.CleanRowTest("<p><strong>Основные функции:</strong></p> <ul> <li>мониторинг состояния промышленных кластеров СУБД SAP ASE (Sybase) Банка;</li> <li>участие в штатных процедурах решения ИТ-инцидентов;</li> <li>выполнение работ по сопровождению промышленных и тестовых кластеров СУБД SAP ASE (Sybase) и подготовка планов, инструкций инженерному составу;</li> <li>сбор и анализ диагностической информации, в случае потребности;</li>")
+        'Основные функции: мониторинг состояния промышленных кластеров СУБД SAP ASE (Sybase) Банка; участие в штатных процедурах решения ИТ-инцидентов; выполнение работ по сопровождению промышленных и тестовых кластеров СУБД SAP ASE (Sybase) и подготовка планов, инструкций инженерному составу; сбор и анализ диагностической информации, в случае потребности;'
+        >>> DataSet.CleanRowTest("</p> <p><br /><br />Requirements:<br />- experience in writing tests using Python<br />-")
+        'Requirements:- experience in writing tests using Python-'
+        >>> DataSet.CleanRowTest(":)</p> </li> </ul> <p> </p> <p>")
+        ':)'
+        >>> DataSet.CleanRowTest("</strong> </p> <ul> <li>диагностика неисправностей</li> <li>")
+        'диагностика неисправностей'
+        """
+        cleaner = re.compile('<.*?>')
+        clearedRow = re.sub(cleaner, '', row)
+        clearedRow = "; ".join(clearedRow.split('\n'))
+        clearedRow = "".join(clearedRow.split('\r'))
+        clearedRow = " ".join(clearedRow.split())
+        return clearedRow
+
+    def __CleanRow(self, row):
+        """
+        Очищает поле вакансии в CSV-файле от лишних символов
+
+        Args:
+            row (str): Поле вакансии
+
+        Returns:
+            (str): Очищенное поле вакансии
         """
         cleaner = re.compile('<.*?>')
         clearedRow = re.sub(cleaner, '', row)
@@ -454,6 +502,7 @@ class Salary:
         _salaryGross (dict): Словарь перевода параметра налогообложения с английского на русский
         currencyToRub (dict): Курс обмена валют
     """
+
     _salaryCurrency = {"AZN": "Манаты",
                        "BYR": "Белорусские рубли",
                        "EUR": "Евро",
@@ -505,6 +554,17 @@ class Salary:
 
         Returns:
             (str): Формат зарплаты для таблицы
+
+        >>> Salary(100, 200, "RUR", "True").Format()
+        '100 - 200 (Рубли) (Без вычета налогов)'
+        >>> Salary(1000, 2000, "USD", "False").Format()
+        '1 000 - 2 000 (Доллары) (С вычетом налогов)'
+        >>> Salary(10000, 20000, "KZT", "True").Format()
+        '10 000 - 20 000 (Тенге) (Без вычета налогов)'
+        >>> Salary(100000, 200000, "BYR", "True").Format()
+        '100 000 - 200 000 (Белорусские рубли) (Без вычета налогов)'
+        >>> Salary(1000000, 2000000, "GEL", "False").Format()
+        '1 000 000 - 2 000 000 (Грузинский лари) (С вычетом налогов)'
         """
         salary = ""
         for name in self.__dict__.keys():
@@ -522,6 +582,26 @@ class Salary:
             int: Сумма в рублях
         """
         return salary * self.currencyToRub[self.salaryCurrency]
+
+    @staticmethod
+    def ChangeCurrencyTest(salary, currency):
+        """
+        Конвертирует сумму из любой валюты в рубли
+
+        Args:
+            salary(float): Сумма
+
+        Returns:
+            int: Сумма в рублях
+
+        >>> Salary.ChangeCurrencyTest(300, "USD")
+        18198.0
+        >>> Salary.ChangeCurrencyTest(0, "EUR")
+        0.0
+        >>> Salary.ChangeCurrencyTest(999, "EUR")
+        59840.1
+        """
+        return salary * Salary.currencyToRub[currency]
 
     def Sort(self):
         """
@@ -550,6 +630,7 @@ class Salary:
         return expectedCurrency == self._salaryCurrency[self.salaryCurrency]
 
 
-inputData = InputConnect()
-dataSet = DataSet(inputData)
-inputData.PrintDataSet(dataSet)
+# inputData = InputConnect()
+# dataSet = DataSet(inputData)
+# inputData.PrintDataSet(dataSet)
+doctest.testmod()
