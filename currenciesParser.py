@@ -47,7 +47,7 @@ class CurrenciesParser:
         df.drop(columns="CurrenciesRatio")
         return df
 
-    def ConverToRub(self):
+    def ConvertToRub(self):
         # df = pd.read_csv(self.fileName)
         # df = self.ApplyPreselection(df)
         # conversionTable = self.CreateConversionTable(df)
@@ -81,7 +81,7 @@ class CurrenciesParser:
         df["salary"] = df.apply(lambda x: self.ConvertSalary(x), axis=1)
         df = df[df["salary"].notnull()]
         df.loc[:, ["name", "salary", "area_name", "published_at"]].to_csv("ConvertedVacancies.csv", index=False)
-        return df
+        return df.loc[:, ["name", "salary", "area_name", "published_at"]], "ConvertedVacancies.csv"
 
     def ConvertSalary(self, row):
         if row["salary_currency"] != "RUR":

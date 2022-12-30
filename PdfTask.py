@@ -5,11 +5,9 @@ import os
 import openpyxl
 import numpy as np
 import matplotlib.pyplot as plt
-from datetime import datetime
 from openpyxl.styles import Font, NamedStyle, Side, Border
 from jinja2 import Environment, FileSystemLoader
-from collections import OrderedDict
-import doctest
+
 
 class Vacancy:
     """
@@ -625,7 +623,7 @@ class Report:
         ax3 = self.__CreateHorizontalBar(ax3, "Уровень зарплат по городам", listData[4])
         plt.rc('font', size=6)
         tempDict = {k: v for k, v in list(listData[5].items())[:10]}
-        tempDict["Другие"] = sum(list(listData[5].values())[10:])
+        tempDict["Другие"] = 1 - sum(tempDict.values())
         tempDict = dict(sorted(tempDict.items(), key=lambda x: x[1]))
         ax4 = figure.add_subplot(2, 2, 4)
         ax4 = self.__CreatePie(ax4, "Доля вакансий по городам", tempDict)

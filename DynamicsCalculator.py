@@ -3,27 +3,27 @@ import multiprocessing
 
 
 class Calculator:
-    def __init__(self, vacancyName):
+    def __init__(self, vacancyName, areaName):
         self.vacancyName = vacancyName
+        self.areaName = areaName
 
     def GetDynamicsByYear(self, fileName, year):
-        # fileName, year = data
-        generalDf = self.GetDataByYear(fileName)
-        dfByVacancy = self.GetDataByYear(fileName, self.vacancyName)
-        res = (year, self.GetSalariesData(generalDf), self.GetDataCount(generalDf), self.GetSalariesData(dfByVacancy),
-               self.GetDataCount(dfByVacancy))
-        # print(multiprocessing.current_process().name, fileName, res)
+        generalDf = self.GetDataByYear(fileName, areaName=self.areaName)
+        dfByParameters = self.GetDataByYear(fileName, self.vacancyName, self.areaName)
+        res = (year, self.GetSalariesData(generalDf), self.GetDataCount(generalDf),
+               self.GetSalariesData(dfByParameters), self.GetDataCount(dfByParameters))
         return res
 
-    def GetDataByYear(self, fileName, vacancyName=None):
+    def GetDataByYear(self, fileName, vacancyName=None, areaName=None):
         df = pd.read_csv(fileName)
+        if areaName is not None:
+            df = df[df["area_name"] == areaName]
         if vacancyName is not None:
             df = df[df["name"].str.contains(vacancyName)]
         return df
 
     def GetSalariesData(self, df):
-        df["salary"] = df[['salary_from', 'salary_to']].mean(axis=1)
-        return int(df["salary"].mean())
+        return int(df["salary"].mean()) if len(df) > 0 else 0
 
     def GetDataCount(self, df):
         return len(df)
@@ -37,7 +37,6 @@ class Calculator:
 
     def GetCitySalariesData(self, df):
         tempDf = df.copy()
-        tempDf["salary"] = tempDf[['salary_from', 'salary_to']].mean(axis=1)
         tempDf = tempDf.groupby('area_name')['salary'].mean().sort_values(ascending=False)
         tempDf = tempDf.head(10).apply(lambda x: int(x)).to_dict()
         return tempDf
@@ -56,7 +55,8 @@ class Calculator:
             generalCount[dataYear[0]] = dataYear[2]
             vacancySalaries[dataYear[0]] = dataYear[3]
             vacancyCount[dataYear[0]] = dataYear[4]
-        print("Динамика уровня зарплат по годам:", generalSalaries)
-        print("Динамика количества вакансий по годам:", generalCount)
+        print("Динамика уровня зарплат по годам и региону:", generalSalaries)
+        print("Динамика количества вакансий по годам и региону:", generalCount)
         print("Динамика уровня зарплат по годам для выбранной профессии:", vacancySalaries)
         print("Динамика количества вакансий по годам для выбранной профессии:", vacancyCount)
+        return generalSalaries, generalCount, vacancySalaries, vacancyCount
