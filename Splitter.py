@@ -1,8 +1,10 @@
 import pandas as pd
 
 class Splitter:
-    def __init__(self, fileName):
+    def __init__(self, fileName, outputPath, outputName):
         self.fileName = fileName
+        self.outputPath = outputPath
+        self.outputName = outputName
         self.SplitFileByYear()
 
     def SplitFileByYear(self):
@@ -11,4 +13,4 @@ class Splitter:
         self.years = df["years"].unique()
         dfGroupByYear = df.groupby("years")
         for year, data in dfGroupByYear:
-            data.iloc[:, :6].to_csv(f'CsvFilesByYear\\DataByYear{year}.csv', index=False)
+            data.iloc[:, :6].to_csv(f'{self.outputPath}\\{self.outputName}{year}.csv', index=False)

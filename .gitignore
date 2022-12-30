@@ -4,3 +4,6 @@
 /__pycache__
 /Tests/__pycache__
 *.xlsx
+*.pdf
+!ConvertedVacanciesResultForGithub.csv
+!DistributorVacancies.csv

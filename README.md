@@ -27,3 +27,11 @@ CsvSplitterByYear result
 Динамики с concurrent.futures
 
 ![изображение](https://user-images.githubusercontent.com/103134410/206861601-e5e6dd77-7633-4adf-938d-34d1a1034b81.png)
+
+Частотность с которой встречаются различные валюты, за этот период времени (2003–2022)
+
+![изображение](https://user-images.githubusercontent.com/103134410/208471322-75137ec7-b944-4ef0-b463-80a43a334854.png)
+
+CsvSplitterByYear for currencies результат
+
+![изображение](https://user-images.githubusercontent.com/103134410/208475139-36fc224c-c655-416c-b206-af7df062d568.png)
