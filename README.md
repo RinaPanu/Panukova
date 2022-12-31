@@ -35,3 +35,20 @@ CsvSplitterByYear result
 CsvSplitterByYear for currencies результат
 
 ![изображение](https://user-images.githubusercontent.com/103134410/208475139-36fc224c-c655-416c-b206-af7df062d568.png)
+
+data base
+<img width="960" alt="3 5 1" src=<img width="960" alt="Снимок экрана 2022-12-31 144928" src="https://user-images.githubusercontent.com/113353473/210132676-0728f449-a17a-4733-ba7f-70da0b2697d6.png">
+
+<img width="960" alt="Снимок экрана 2022-12-31 145017" src="https://user-images.githubusercontent.com/113353473/210132679-f1ce26e9-3774-4236-8de4-ab8e5705007a.png">
+
+"https://user-images.githubusercontent.com/113353473/210132672-3dced127-f3a8-4c1f-af90-30301c05dc88.png">
+
+<img width="842" alt="один" src="https://user-images.githubusercontent.com/113353473/210132701-e697da94-3ce0-48f0-9e1a-86009a42f4e4.png">
+
+<img width="556" alt="два" src="https://user-images.githubusercontent.com/113353473/210132707-75d6836a-c0ee-43d9-9866-d7d72e4edbcc.png">
+
+<img width="726" alt="три" src="https://user-images.githubusercontent.com/113353473/210132711-0242053d-bd96-4cd2-a118-692ceb0104c2.png">
+
+<img width="513" alt="четыре" src="https://user-images.githubusercontent.com/113353473/210132726-b1a7b846-04e3-4c57-bbed-9fadf1b8f207.png">
+
+<img width="436" alt="пять" src="https://user-images.githubusercontent.com/113353473/210132734-026900bc-aaa4-48e4-8578-382ec4087996.png">
