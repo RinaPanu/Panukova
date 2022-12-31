@@ -1,12 +1,20 @@
 import pandas as pd
 import requests
 from xml.etree import ElementTree as ET
+from dataBase import DataBase as DB
 
 
 class CurrenciesParser:
 
     def __init__(self, fileName):
         self.fileName = fileName
+        df = pd.read_csv(self.fileName)
+        self.df = self.ApplyPreselection(df)
+        self.conversionTable = self.CreateConversionTable(self.df)
+        self.dbController = DB("ConversionTable")
+        self.dbController.CreateDataBase(self.conversionTable,
+                                         "date text, USD float, EUR float, KZT float, UAH float, BYR float", True)
+        self.dbCursor = self.dbController.OpenDB()
 
     def GetCurrenciesRatio(self, df):
         df = df.copy()
@@ -47,7 +55,7 @@ class CurrenciesParser:
         df.drop(columns="CurrenciesRatio")
         return df
 
-    def ConvertToRub(self):
+    def ConvertToRub(self, returnFormat):
         # df = pd.read_csv(self.fileName)
         # df = self.ApplyPreselection(df)
         # conversionTable = self.CreateConversionTable(df)
@@ -74,16 +82,26 @@ class CurrenciesParser:
         # df.loc[:,["name", "salary", "area_name","published_at"]].to_csv("ConvertedVacancies.csv", index=False)
         # return df
 
-        df = pd.read_csv(self.fileName)
-        df = self.ApplyPreselection(df)
-        self.conversionTable = self.CreateConversionTable(df)
+        df = self.df.copy()
+        df["published_at"] = df["published_at"].transform(lambda x: x[:19])
         df["salary"] = df[["salary_from", "salary_to"]].mean(axis=1)
         df["salary"] = df.apply(lambda x: self.ConvertSalary(x), axis=1)
         df = df[df["salary"].notnull()]
-        df.loc[:, ["name", "salary", "area_name", "published_at"]].to_csv("ConvertedVacancies.csv", index=False)
-        return df.loc[:, ["name", "salary", "area_name", "published_at"]], "ConvertedVacancies.csv"
+        vacanciesDF = df.loc[:, ["name", "salary", "area_name", "published_at"]]
+        vacanciesDF.to_csv("ConvertedVacancies.csv", index=False)
+        self.dbController.CloseDB()
+        if returnFormat == "df":
+            return vacanciesDF, "ConvertedVacancies.csv"
+        else:
+            vacanciesDB = DB("convertedVacancies")
+            vacanciesDB.CreateDataBase(vacanciesDF, "name text, salary float, area_name text, published_at text", False)
+            return vacanciesDB
 
     def ConvertSalary(self, row):
         if row["salary_currency"] != "RUR":
-            return row["salary"] * self.conversionTable.at[row["published_at"][0:7], row["salary_currency"]]
+            request = f"""SELECT {row['salary_currency']} 
+                        FROM ConversionTable 
+                        WHERE date = '{row["published_at"][0:7]}'"""
+            rate = self.dbCursor.execute(request).fetchone()[0]
+            return row['salary'] * rate if rate is not None else None
         return row["salary"]

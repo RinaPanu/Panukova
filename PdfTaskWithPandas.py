@@ -10,7 +10,7 @@ if __name__ == "__main__":
     vacancyName = input("Введите название профессии: ")
     areaName = input("Введите название региона: ")
     currenciesParser = CurrenciesParser(fileName)
-    convertedCurrencies, convertedCurrenciesFile = currenciesParser.ConvertToRub()
+    convertedCurrencies, convertedCurrenciesFile = currenciesParser.ConvertToRub("df")
     splitter = Splitter(convertedCurrenciesFile, "CsvFilesByYear", "DataByYear")
     dynamicsCalculator = Calculator(vacancyName, areaName)
     with ThreadPoolExecutor(os.cpu_count() * 3) as ex:
